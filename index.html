@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VortexWarehouse OS — Smart Warehouse Operations & Fulfillment Platform</title>
+  <meta name="description" content="Intelligent decision-driven smart warehouse operations, inventory allocation, picking route optimization, exception handling, and operational analytics platform.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome & Lucide -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0265d2',
+              700: '#034da3',
+              900: '#0c2a52',
+            },
+            dark: {
+              950: '#090d16',
+              900: '#0f172a',
+              850: '#141e33',
+              800: '#1e293b',
+              700: '#334155',
+              600: '#475569',
+            },
+            neon: {
+              cyan: '#00f2fe',
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              rose: '#f43f5e',
+              purple: '#a855f7',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-dark-950 text-slate-100 font-sans antialiased h-screen flex flex-col overflow-hidden selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- App Wrapper -->
+  <div id="app" class="flex flex-col h-full w-full">
+    
+    <!-- Top Header Bar -->
+    <header id="main-header" class="h-16 border-b border-dark-700/60 bg-dark-900/90 backdrop-blur-md px-6 flex items-center justify-between shrink-0 z-30">
+      <!-- Logo & System Name -->
+      <div class="flex items-center space-x-4">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 ring-1 ring-white/20">
+          <i class="fa-solid font-bold text-lg text-white fa-cubes-stacked"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-cyan-400 bg-clip-text text-transparent">VortexWarehouse</h1>
+            <span class="px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider font-bold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">AI OS v2.4</span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">Smart Operations & Order Fulfillment System</p>
+        </div>
+      </div>
+
+      <!-- Center System Quick Stats -->
+      <div class="hidden lg:flex items-center space-x-6 bg-dark-950/60 px-4 py-1.5 rounded-xl border border-dark-700/50">
+        <div class="flex items-center space-x-2">
+          <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-xs font-semibold text-slate-300">Decision Engine:</span>
+          <span class="text-xs font-mono font-bold text-emerald-400" id="header-engine-status">ACTIVE (AUTONOMOUS)</span>
+        </div>
+        <div class="h-4 w-px bg-dark-700"></div>
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-clock text-xs text-cyan-400"></i>
+          <span class="text-xs text-slate-400">Avg Cycle Time:</span>
+          <span class="text-xs font-mono font-bold text-slate-200" id="header-avg-time">14.2 min</span>
+        </div>
+        <div class="h-4 w-px bg-dark-700"></div>
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-shield-halved text-xs text-amber-400"></i>
+          <span class="text-xs text-slate-400">Stock Vulnerability:</span>
+          <span class="text-xs font-mono font-bold text-amber-400" id="header-stock-risk">LOW (2 SKUs)</span>
+        </div>
+      </div>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center space-x-3">
+        <!-- Live Clock -->
+        <div class="hidden sm:block text-right pr-2 border-r border-dark-700/60">
+          <div id="header-clock" class="text-xs font-mono font-bold text-cyan-300">08:30:00 AM</div>
+          <div class="text-[10px] text-slate-400 uppercase font-medium">Warehouse Zone 4</div>
+        </div>
+
+        <!-- Role View Selector -->
+        <div class="relative inline-block text-left">
+          <select id="role-selector" class="bg-dark-850 border border-dark-700 text-xs font-semibold text-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 cursor-pointer">
+            <option value="manager">👔 Role: Operations Manager</option>
+            <option value="picker">👷 Role: Floor Picker App</option>
+            <option value="executive">📊 Role: Executive Analytics</option>
+          </select>
+        </div>
+
+        <!-- Trigger Sim Panel Button -->
+        <button id="btn-toggle-sim" class="px-3.5 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold text-xs shadow-md shadow-cyan-900/30 transition-all flex items-center space-x-2">
+          <i class="fa-solid fa-bolt text-yellow-300 animate-pulse"></i>
+          <span>Hackathon Demo Control</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace (Sidebar + Dynamic View Content) -->
+    <div class="flex flex-1 overflow-hidden relative">
+      
+      <!-- Left Sidebar Navigation -->
+      <aside id="main-sidebar" class="w-64 bg-dark-900/80 border-r border-dark-700/60 flex flex-col justify-between p-3 shrink-0 z-20">
+        <nav class="space-y-1">
+          <div class="px-3 py-2 text-[10px] font-mono uppercase tracking-wider font-bold text-slate-400">Core Operations</div>
+          
+          <button data-tab="dashboard" class="nav-btn active w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all">
+            <i class="fa-solid fa-chart-line text-sm"></i>
+            <span>Operations Dashboard</span>
+          </button>
+          
+          <button data-tab="orders" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-boxes-packing text-sm"></i>
+              <span>Order Management</span>
+            </div>
+            <span id="badge-pending-orders" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full bg-cyan-500/20 text-cyan-400">12</span>
+          </button>
+
+          <button data-tab="warehouse-map" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all">
+            <i class="fa-solid fa-map-location-dot text-sm"></i>
+            <span>2D Interactive Floor Map</span>
+          </button>
+
+          <button data-tab="inventory" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-warehouse text-sm"></i>
+              <span>Inventory & Stock ROP</span>
+            </div>
+            <span id="badge-low-stock" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full bg-amber-500/20 text-amber-400">2</span>
+          </button>
+
+          <div class="px-3 pt-4 pb-2 text-[10px] font-mono uppercase tracking-wider font-bold text-slate-400">Execution & Analytics</div>
+
+          <button data-tab="picker-sim" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all">
+            <i class="fa-solid fa-barcode text-sm"></i>
+            <span>Picker Mobile Simulator</span>
+          </button>
+
+          <button data-tab="dispatch" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all">
+            <i class="fa-solid fa-truck-fast text-sm"></i>
+            <span>Dispatch & Carrier Hub</span>
+          </button>
+
+          <button data-tab="analytics" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all">
+            <i class="fa-solid fa-chart-pie text-sm"></i>
+            <span>Bottleneck & Analytics</span>
+          </button>
+        </nav>
+
+        <!-- Sidebar Footer Status Box -->
+        <div class="bg-dark-950/80 p-3 rounded-xl border border-dark-700/60 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-300">Active Pickers</span>
+            <span class="text-[11px] font-mono font-bold text-cyan-400" id="sidebar-active-pickers">4/5 On Duty</span>
+          </div>
+          <div class="w-full bg-dark-800 h-1.5 rounded-full overflow-hidden">
+            <div class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full w-[80%]"></div>
+          </div>
+          <div class="flex justify-between items-center text-[10px] text-slate-400">
+            <span>Capacity Util: <strong class="text-slate-200">76%</strong></span>
+            <span>Errors: <strong class="text-emerald-400">0.02%</strong></span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Central View Container (Renders active Tab) -->
+      <main id="view-container" class="flex-1 bg-dark-950 overflow-y-auto p-6 relative">
+        <!-- Content will be injected dynamically by app.js -->
+      </main>
+
+      <!-- Right Floating Simulation & AI Decision Panel (Collapsible) -->
+      <aside id="simulation-drawer" class="w-96 bg-dark-900 border-l border-dark-700/70 flex flex-col justify-between shadow-2xl transition-all duration-300 transform translate-x-full absolute right-0 top-0 bottom-0 z-40">
+        <!-- Header -->
+        <div class="p-4 border-b border-dark-700/70 flex items-center justify-between bg-dark-850/80">
+          <div class="flex items-center space-x-2">
+            <div class="h-2 w-2 rounded-full bg-yellow-400 animate-ping"></div>
+            <h3 class="font-bold text-sm text-slate-100">Hackathon Decision Simulator</h3>
+          </div>
+          <button id="btn-close-sim" class="text-slate-400 hover:text-white transition-colors">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Simulator Controls -->
+        <div class="p-4 space-y-4 flex-1 overflow-y-auto">
+          <!-- Simulation Speed & Controls -->
+          <div class="bg-dark-950 p-3.5 rounded-xl border border-dark-700 space-y-3">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+              <span>Simulation Clock</span>
+              <span id="sim-status-badge" class="px-2 py-0.5 text-[10px] rounded font-mono bg-emerald-500/20 text-emerald-400 font-bold">RUNNING (1x)</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button id="sim-toggle-play" class="flex-1 py-2 bg-cyan-600 hover:bg-cyan-500 font-bold text-xs text-white rounded-lg transition-all flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-pause"></i>
+                <span id="sim-play-text">Pause</span>
+              </button>
+              <button data-speed="1" class="sim-speed-btn active px-3 py-2 bg-dark-800 hover:bg-dark-700 text-xs font-mono font-bold rounded-lg text-slate-300">1x</button>
+              <button data-speed="2" class="sim-speed-btn px-3 py-2 bg-dark-800 hover:bg-dark-700 text-xs font-mono font-bold rounded-lg text-slate-300">2x</button>
+              <button data-speed="5" class="sim-speed-btn px-3 py-2 bg-dark-800 hover:bg-dark-700 text-xs font-mono font-bold rounded-lg text-slate-300">5x</button>
+            </div>
+          </div>
+
+          <!-- Preset Edge Case Injections -->
+          <div class="space-y-2">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Inject Edge Case Scenarios</div>
+            
+            <button id="btn-inject-shortage" class="w-full text-left p-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-dark-850 border border-amber-500/30 hover:border-amber-500/60 transition-all group">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-amber-300 group-hover:text-amber-200">⚡ Shortage & Stock Reallocation</span>
+                <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">High-priority VIP Order requests 10 units of GPU-9090 when only 3 remain. Triggers low-priority stock snatch.</p>
+            </button>
+
+            <button id="btn-inject-damaged" class="w-full text-left p-3 rounded-xl bg-gradient-to-r from-rose-500/10 to-dark-850 border border-rose-500/30 hover:border-rose-500/60 transition-all group">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-rose-300 group-hover:text-rose-200">🚨 Damaged Goods Exception</span>
+                <i class="fa-solid fa-triangle-exclamation text-rose-400 text-xs"></i>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">Picker discovers broken seal in Bin A-02. System auto-locks bin, reroutes picker, and pulls replacement stock.</p>
+            </button>
+
+            <button id="btn-inject-surge" class="w-full text-left p-3 rounded-xl bg-gradient-to-r from-cyan-500/10 to-dark-850 border border-cyan-500/30 hover:border-cyan-500/60 transition-all group">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-cyan-300 group-hover:text-cyan-200">📦 Flash Order Surge (5 Orders)</span>
+                <i class="fa-solid fa-boxes-stacked text-cyan-400 text-xs"></i>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">Spawns 5 simultaneous orders with varying SLA targets to test priority scoring and pick path optimization.</p>
+            </button>
+          </div>
+
+          <!-- AI Decision Audit Stream -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Live AI Decision Stream</span>
+              <button id="btn-clear-logs" class="text-[10px] text-slate-400 hover:text-white">Clear Log</button>
+            </div>
+            <div id="sim-audit-log" class="h-64 bg-dark-950 rounded-xl p-3 border border-dark-700/70 font-mono text-[11px] overflow-y-auto space-y-2">
+              <!-- Logs injected here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-3 bg-dark-950 border-t border-dark-700 text-center">
+          <span class="text-[10px] text-slate-400 font-mono">Vortex AI Engine — Real-time Event Driven</span>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Global Modal Container -->
+  <div id="modal-container" class="fixed inset-0 bg-dark-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
+    <div id="modal-content" class="bg-dark-900 border border-dark-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl transform scale-95 transition-transform duration-200 relative">
+      <!-- Dynamic modal content -->
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
